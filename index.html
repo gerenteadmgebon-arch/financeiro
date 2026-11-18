@@ -73,10 +73,10 @@ function normalizeLink(raw){
  if(!['https:','http:'].includes(url.protocol)||!url.hostname||url.username||url.password)throw Error('Use um endereço http/https sem usuário ou senha incorporados.');
  if(url.href.length>2000)throw Error('O link é muito longo.');return url.href;
 }
-const portfolioNames=['DRE · Realizado','Fluxo de caixa','Contas a pagar','Contas a receber','Estoque e capital de giro','Indicadores financeiros'];
+const portfolioNames=['DRE','Fluxo de caixa','Contas a pagar','Contas a receber','Estoque e capital de giro','Indicadores financeiros'];
 function normalizeLinks(raw){
  if(!Array.isArray(raw)||![3,6].includes(raw.length))throw Error('A configuração deve ter três ou seis acessos.');
- return Array.from({length:6},(_,i)=>({name:String(raw[i]?.name??portfolioNames[i]).trim().slice(0,70)||portfolioNames[i],url:normalizeLink(raw[i]?.url)}));
+ return Array.from({length:6},(_,i)=>{let name=String(raw[i]?.name??portfolioNames[i]).trim().slice(0,70)||portfolioNames[i],url=normalizeLink(raw[i]?.url);if(/^DRE\s*(?:[·–-]\s*)?(?:Semanal|Realizado|Completo|Simplificado)$/i.test(name))name='DRE';if(url){const target=new URL(url);if(target.hostname==='gerenteadmgebon-arch.github.io'&&target.pathname.toLowerCase().startsWith('/dre-semanal/')){target.searchParams.set('pagina','completo');url=target.href;}}return {name,url};});
 }
 
 function normalizeEmail(raw){
